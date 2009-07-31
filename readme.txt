@@ -2,7 +2,7 @@
 Contributors: honza.skypala
 Donate link: http://www.honza.info
 Tags: grammar, Czech
-Requires at least: 2.8
+Requires at least: 2.0
 Tested up to: 2.8.2
 Stable tag: 1.0
 
@@ -13,7 +13,7 @@ This plugin helps to keep some grammar rules in Czech language related to word w
 
 For English, see below.
 
-Upravujeme-li písemný dokument, radí nám Pravidla českého pravopisu nepsat neslabičné předložky v, s, z, k na konec řádku, ale psát je na stejný řádek se slovem, které nese přízvuk (např. ve spojení k mostu, s bratrem, v Plzni, z&nbsp;nádraží). Typografické normy jsou ještě přísnější: podle některých je nepatřičné ponechat na konci řádku jakékoli jednopísmenné slovo, tedy také předložky a spojky a, i, o, u;. Někteří pisatelé dokonce nechtějí z estetických důvodů ponechávat na konci řádků jakékoli jednoslabičné výrazy (např. ve, ke, ku, že, na, do, od, pod).
+Czech: Upravujeme-li písemný dokument, radí nám Pravidla českého pravopisu nepsat neslabičné předložky v, s, z, k na konec řádku, ale psát je na stejný řádek se slovem, které nese přízvuk (např. ve spojení k mostu, s bratrem, v Plzni, z&nbsp;nádraží). Typografické normy jsou ještě přísnější: podle některých je nepatřičné ponechat na konci řádku jakékoli jednopísmenné slovo, tedy také předložky a spojky a, i, o, u;. Někteří pisatelé dokonce nechtějí z estetických důvodů ponechávat na konci řádků jakékoli jednoslabičné výrazy (např. ve, ke, ku, že, na, do, od, pod).
 
 <a href="http://prirucka.ujc.cas.cz/?id=880" title="Více informací k problematice">Více informací</a> na webu Ústavu pro jazyk český, Akademie věd ČR.
 
@@ -30,6 +30,7 @@ English: This plugin helps to keep some grammar rules in Czech language related 
 
 == Installation ==
 
+Czech:
 1.	Nahrajte kompletní adresář pluginu do wp-content/plugins.
 2.	Aktivujte plugin TopList.cz v administraci plug-inů.
 3.	V konfiguraci pluginu můžete nastavit jednotlivé volby.
