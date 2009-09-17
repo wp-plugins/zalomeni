@@ -12,7 +12,7 @@ define('ZALOMENI_VERSION', '1.1');
 
 function zalomeni_activate() {
 	// default settings
-	define('ZKRATKY', 'č., čís., čj., čp., fa, fě, fy, kupř., mj., např., p., pí, popř., př., sl., str., sv., tj., tzn., tzv., zvl.');
+	define('ZKRATKY', 'cca., č., čís., čj., čp., fa, fě, fy, kupř., mj., např., p., pí, popř., př., přib., přibl., sl., str., sv., tj., tzn., tzv., zvl.');
 	$zalomeni_options = array();
 	$zalomeni_options['zalomeni_prepositions']       = 'on';
 	$zalomeni_options['zalomeni_prepositions_list']  = 'k, s, v, z';
