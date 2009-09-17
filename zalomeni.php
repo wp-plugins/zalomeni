@@ -3,28 +3,41 @@
 Plugin Name: Zalomení
 Plugin URI: http://www.honza.info/category/wordpress/
 Description: Puts non-breakable space after one-letter Czech prepositions like 'k', 's', 'v' or 'z'.
-Version: 1.0
+Version: 1.1
 Author: Honza Skypala
 Author URI: http://www.honza.info/
 */
 
-define('ZALOMENI_VERSION', '1.0');
+define('ZALOMENI_VERSION', '1.1');
 
 function zalomeni_activate() {
 	// default settings
+	define('ZKRATKY', 'č., čís., čj., čp., fa, fě, fy, kupř., mj., např., p., pí, popř., př., sl., str., sv., tj., tzn., tzv., zvl.');
 	$zalomeni_options = array();
 	$zalomeni_options['zalomeni_prepositions']       = 'on';
 	$zalomeni_options['zalomeni_prepositions_list']  = 'k, s, v, z';
 	$zalomeni_options['zalomeni_conjunctions']       = '';
 	$zalomeni_options['zalomeni_conjunctions_list']  = 'a, i, o, u';
 	$zalomeni_options['zalomeni_abbreviations']      = '';
-	$zalomeni_options['zalomeni_abbreviations_list'] = 'např., tj., tzv., tzn.';
+	$zalomeni_options['zalomeni_abbreviations_list'] = ZKRATKY;
+	$zalomeni_options['zalomeni_numbers']            = 'on';
 	add_option('zalomeni_options', $zalomeni_options);
 	// update_option('zalomeni_options', $zalomeni_options);  // reset settings to default
 	
-	// rebuild the replacement array in every case
 	$zalomeni_options = get_option('zalomeni_options');
-	$zalomeni_options['zalomeni_replacement_array'] = zalomeni_prepare_array($zalomeni_options);
+	$zalomeni_version = get_option('zalomeni_version');
+
+	if ($zalomeni_version == '1.0') {
+		// adjust changes version 1.0 -> version 1.1
+		$zalomeni_options['zalomeni_abbreviations_list'] = ZKRATKY;  // new list of abbreviations
+		$zalomeni_options['zalomeni_numbers']            = 'on';     // set numbers on if version upgrade
+		unset($zalomeni_options['zalomeni_replacement_array']);      // remove this setting
+	}
+
+	// rebuild the replacement array in every case
+	$zalomeni_options['zalomeni_matches']      = zalomeni_prepare_matches($zalomeni_options);
+	$zalomeni_options['zalomeni_replacements'] = zalomeni_prepare_replacements($zalomeni_options);
+
 	update_option('zalomeni_options', $zalomeni_options);
 
 	// remember version
@@ -32,39 +45,45 @@ function zalomeni_activate() {
 	update_option('zalomeni_version', ZALOMENI_VERSION);
 }
 
-function zalomeni_prepare_single_array($array_string) {
-	$temp_array = explode(',', $array_string);
+function zalomeni_prepare_matches($zalomeni_options) {
 	$return_array = array();
-	foreach ($temp_array as $i) {
-		$i = strtoupper(trim($i));
-		if ($i != '') {
-			$return_array[' '.$i.' ']      = ' '.$i.'&nbsp;';        // precedes with space, ASCII 32
-			$return_array[' '.$i.' ']      = ' '.$i.'&nbsp;';        // precedes with hard space, ASCII 160
-			$return_array['&nbsp;'.$i.' '] = '&nbsp;'.$i.'&nbsp;';   // precedes with hard space, string '&nbsp;'
-			$i = strtolower($i);
-			$return_array[' '.$i.' ']      = ' '.$i.'&nbsp;';
-			$return_array[' '.$i.' ']      = ' '.$i.'&nbsp;';
-			$return_array['&nbsp;'.$i.' '] = '&nbsp;'.$i.'&nbsp;';
-			if (strlen($i) > 1) {
-				$i = ucfirst($i);
-				$return_array[' '.$i.' ']      = ' '.$i.'&nbsp;';
-				$return_array[' '.$i.' ']      = ' '.$i.'&nbsp;';
-				$return_array['&nbsp;'.$i.' '] = '&nbsp;'.$i.'&nbsp;';
+	
+	$word_matches = '';
+	foreach (array('prepositions', 'conjunctions', 'abbreviations') as $i) {
+		if ($zalomeni_options['zalomeni_'.$i] == 'on') {
+			$temp_array = explode(',', $zalomeni_options['zalomeni_'.$i.'_list']);
+			foreach ($temp_array as $j) {
+				$j = strtolower(trim($j));
+				$word_matches .= ($word_matches == '' ? '' : '|') . $j;
 			}
 		}
 	}
+	if ($word_matches != '') {
+		$return_array['words'] = '@(^| |&nbsp;|\(|\n)('.$word_matches.') @i';
+	}
+	
+	if ($zalomeni_options['zalomeni_numbers'] == 'on') {
+		$return_array['numbers'] = '@(\d) (\d)@i';
+	}
+
 	return $return_array;
 }
 
-function zalomeni_prepare_array($zalomeni_options) {
+function zalomeni_prepare_replacements($zalomeni_options) {
 	$return_array = array();
-	if ($zalomeni_options['zalomeni_prepositions'] == 'on')
-		$return_array = array_merge($return_array, zalomeni_prepare_single_array($zalomeni_options['zalomeni_prepositions_list']));
-	if ($zalomeni_options['zalomeni_conjunctions'] == 'on')
-		$return_array = array_merge($return_array, zalomeni_prepare_single_array($zalomeni_options['zalomeni_conjunctions_list']));
-	if ($zalomeni_options['zalomeni_abbreviations'] == 'on')
-		$return_array = array_merge($return_array, zalomeni_prepare_single_array($zalomeni_options['zalomeni_abbreviations_list']));
-	return $return_array;          
+	
+	foreach (array('prepositions', 'conjunctions', 'abbreviations') as $i) {
+		if ($zalomeni_options['zalomeni_'.$i] == 'on') {
+			$return_array['words'] = '$1$2&nbsp;';
+			break;
+		}
+	}
+	
+	if ($zalomeni_options['zalomeni_numbers'] == 'on') {
+		$return_array['numbers'] = '$1&nbsp;$2';
+	}
+
+	return $return_array;
 }
 
 function zalomeni_add_options_page() {
@@ -83,12 +102,49 @@ function zalomeni_filter_plugin_actions($links, $file) {
 	}
 	return $links;
 }
-add_filter('plugin_action_links', 'zalomeni_filter_plugin_actions', 10, 2);
 
-register_activation_hook(__FILE__, 'zalomeni_activate');
-add_action('admin_menu', 'zalomeni_add_options_page');
+function zalomeni_texturize($text) {
+	$zalomeni_options = get_option('zalomeni_options');
+	$output = '';
+	$curl = '';
+	$textarr = preg_split('/(<.*>|\[.*\])/Us', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+	$stop = count($textarr);
+	
+	$no_texturize_tags = apply_filters('no_texturize_tags', array('pre', 'code', 'kbd', 'style', 'script', 'tt'));
+	$no_texturize_shortcodes = apply_filters('no_texturize_shortcodes', array('code'));
+	$no_texturize_tags_stack = array();
+	$no_texturize_shortcodes_stack = array();
 
-global $wp_cockneyreplace;
+	for ($i = 0; $i < $stop; $i++) {
+		$curl = $textarr[$i];
+
+		if (!empty($curl) && '<' != $curl{0} && '[' != $curl{0}
+				&& empty($no_texturize_shortcodes_stack) && empty($no_texturize_tags_stack)) { // If it's not a tag
+			$curl = preg_replace($zalomeni_options['zalomeni_matches'], $zalomeni_options['zalomeni_replacements'], $curl);
+		} else {
+			wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
+			wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
+		}
+
+		$output .= $curl;
+	}
+
+	return $output;
+}
+
+add_filter('plugin_action_links', 'zalomeni_filter_plugin_actions', 10, 2);  // link from Plugins list admin page to settings of this plugin
+
+register_activation_hook(__FILE__, 'zalomeni_activate');  // activation of plugin
+add_action('admin_menu', 'zalomeni_add_options_page');    // options page
+
 $zalomeni_options = get_option('zalomeni_options');
-$wp_cockneyreplace = array_merge(isset($wp_cockneyreplace) ? $wp_cockneyreplace : array(), $zalomeni_options['zalomeni_replacement_array']);
+if (!empty($zalomeni_options['zalomeni_matches'])) {
+	$filters = array('comment_author', 'term_name', 'link_name', 'link_description',
+		'link_notes', 'bloginfo', 'wp_title', 'widget_title', 'term_description',
+		'the_title', 'the_content', 'the_excerpt', 'comment_text', 'single_post_title',
+		'list_cats');
+	foreach ($filters as $filter) {
+		add_filter($filter, 'zalomeni_texturize');  // content filter
+	}
+}
 ?>

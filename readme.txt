@@ -3,8 +3,8 @@ Contributors: honza.skypala
 Donate link: http://www.honza.info
 Tags: grammar, Czech
 Requires at least: 2.0
-Tested up to: 2.8.2
-Stable tag: 1.0
+Tested up to: 2.8.4
+Stable tag: 1.1
 
 This plugin helps to keep some grammar rules in Czech language related to word wrapping, e.g. prepositions 'k', 's', 'v' and 'z' cannot be placed at the end of line.
 
@@ -46,7 +46,11 @@ Ve výchozím stavu po první instalaci plug-inu je zapnuto pouze umísťování
 
 = 1.0 =
 * Initial release.
-
+= 1.1 =
+* Nyní umí vložit pevnou mezeru také za předložku (či jiné slovo), které se nachází na následujících pozicích: první slovo za otevírací závorkou, první slovo po nějakém tagu (např tag pro zapnutí italiky či tučného písma), na začátku odstavce.
+* Rozšířen výchozí seznam zkratek, za něž se vkládá mezera
+* Nahrazuje mezery v číslech za pevné mezery (např. v telefonním čísle zapsaném jako 800 123 456 nahradí mezery za pevné mezery, aby nebylo číslo rozděleno zalomením řádku).
+* Interně přepsáno, již nevyužívá stávající filter wptexturize(), ale přidává vlastní filtr.
 
 == Licence ==
 
