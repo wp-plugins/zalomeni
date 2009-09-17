@@ -59,7 +59,7 @@ function zalomeni_prepare_matches($zalomeni_options) {
 		}
 	}
 	if ($word_matches != '') {
-		$return_array['words'] = '@(^| |&nbsp;|\(|\n)('.$word_matches.') @i';
+		$return_array['words'] = '@(^|;| |&nbsp;|\(|\n)('.$word_matches.') @i';
 	}
 	
 	if ($zalomeni_options['zalomeni_numbers'] == 'on') {
