@@ -3,7 +3,7 @@
 Plugin Name: Zalomení
 Plugin URI: http://www.honza.info/category/wordpress/
 Description: Puts non-breakable space after one-letter Czech prepositions like 'k', 's', 'v' or 'z'.
-Version: 1.1
+Version: 1.2
 Author: Honza Skypala
 Author URI: http://www.honza.info/
 */
@@ -104,6 +104,7 @@ function zalomeni_filter_plugin_actions($links, $file) {
 }
 
 function zalomeni_texturize($text) {
+	global $wp_version;
 	$zalomeni_options = get_option('zalomeni_options');
 	$output = '';
 	$curl = '';
@@ -121,9 +122,12 @@ function zalomeni_texturize($text) {
 		if (!empty($curl) && '<' != $curl{0} && '[' != $curl{0}
 				&& empty($no_texturize_shortcodes_stack) && empty($no_texturize_tags_stack)) { // If it's not a tag
 			$curl = preg_replace($zalomeni_options['zalomeni_matches'], $zalomeni_options['zalomeni_replacements'], $curl);
-		} else {
+		} else if (version_compare($wp_version, '2.9', '<')) {
 			wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
 			wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
+    } else {
+			_wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
+			_wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
 		}
 
 		$output .= $curl;
