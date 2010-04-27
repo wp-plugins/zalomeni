@@ -29,22 +29,22 @@ $zalomeni_options = get_option('zalomeni_options');
 	<p><?php echo(zalomeni_texturize(__('Tento plugin řeší některé z uvedených příkladů: v textu nahrazuje běžné mezery za pevné tak, aby nedošlo k zalomení řádku v nevhodném místě.', 'zalomeni'))); ?></p>
 
 	<h3><?php echo(zalomeni_texturize(__('Předložky', 'zalomeni'))); ?></h3>
-	<p><input name="zalomeni_prepositions_check" type="checkbox" id="zalomeni_prepositions_check" value="1" <?php echo ($zalomeni_options['zalomeni_prepositions'] == 'on') ? 'checked="checked"' : ''; ?> onchange="document.getElementById('zalomeni_prepositions_list').readOnly = this.checked?'':'1';" /> 
+	<p><input name="zalomeni_prepositions_check" type="checkbox" id="zalomeni_prepositions_check" value="on" <?php echo ($zalomeni_options['zalomeni_prepositions'] == 'on') ? 'checked="checked"' : ''; ?> onchange="document.getElementById('zalomeni_prepositions_list').readOnly = this.checked?'':'1';" /> 
 	   <label for="zalomeni_prepositions_check"><?php echo(zalomeni_texturize(__('Vkládat pevnou mezeru za následující předložky.', 'zalomeni'))); ?></label></p>
 	<p><label for="zalomeni_prepositions_list"><?php echo(zalomeni_texturize(__('Výčet předložek (oddělte jednotlivé předložky čárkou):', 'zalomeni'))); ?></label>
 		 <input name="zalomeni_prepositions_list" type="text" id="zalomeni_prepositions_list" value="<?php echo $zalomeni_options['zalomeni_prepositions_list']; ?>" class="regular-text" <?php echo ($zalomeni_options['zalomeni_prepositions'] != 'on') ? 'readonly="1"' : ''; ?>/></p>
 	<h3><?php echo(zalomeni_texturize(__('Spojky', 'zalomeni'))); ?></h3>
-	<p><input name="zalomeni_conjunctions_check" type="checkbox" id="zalomeni_conjunctions_check" value="0" <?php echo ($zalomeni_options['zalomeni_conjunctions'] == 'on') ? 'checked="checked" ' : ''; ?> onchange="document.getElementById('zalomeni_conjunctions_list').readOnly = this.checked?'':'1';"/> 
+	<p><input name="zalomeni_conjunctions_check" type="checkbox" id="zalomeni_conjunctions_check" value="on" <?php echo ($zalomeni_options['zalomeni_conjunctions'] == 'on') ? 'checked="checked" ' : ''; ?> onchange="document.getElementById('zalomeni_conjunctions_list').readOnly = this.checked?'':'1';"/> 
 	   <label for="zalomeni_conjunctions_check"><?php echo(zalomeni_texturize(__('Vkládat pevnou mezeru za následující spojky.', 'zalomeni'))); ?></label></p>
 	<p><label for="zalomeni_conjunctions_list"><?php echo(zalomeni_texturize(__('Výčet spojek (oddělte jednotlivé spojky čárkou):', 'zalomeni'))); ?></label>
 		 <input name="zalomeni_conjunctions_list" type="text" id="zalomeni_conjunctions_list" value="<?php echo $zalomeni_options['zalomeni_conjunctions_list']; ?>" class="regular-text" <?php echo ($zalomeni_options['zalomeni_conjunctions'] != 'on') ? 'readonly="1"' : ''; ?>/></p>
 	<h3><?php echo(zalomeni_texturize(__('Zkratky', 'zalomeni'))); ?></h3>
-	<p><input name="zalomeni_abbreviations_check" type="checkbox" id="zalomeni_abbreviations_check" value="0" <?php echo ($zalomeni_options['zalomeni_abbreviations'] == 'on') ? 'checked="checked" ' : ''; ?> onchange="document.getElementById('zalomeni_abbreviations_list').readOnly = this.checked?'':'1';"/> 
+	<p><input name="zalomeni_abbreviations_check" type="checkbox" id="zalomeni_abbreviations_check" value="on" <?php echo ($zalomeni_options['zalomeni_abbreviations'] == 'on') ? 'checked="checked" ' : ''; ?> onchange="document.getElementById('zalomeni_abbreviations_list').readOnly = this.checked?'':'1';"/> 
 	   <label for="zalomeni_abbreviations_check"><?php echo(zalomeni_texturize(__('Vkládat pevnou mezeru za následující zkratky.', 'zalomeni'))); ?></label></p>
 	<p><label for="zalomeni_abbreviations_list"><?php echo(zalomeni_texturize(__('Výčet zkratek (oddělte jednotlivé zkratky čárkou):', 'zalomeni'))); ?></label>
 		 <input name="zalomeni_abbreviations_list" type="text" id="zalomeni_abbreviations_list" value="<?php echo $zalomeni_options['zalomeni_abbreviations_list']; ?>" class="regular-text" <?php echo ($zalomeni_options['zalomeni_abbreviations'] != 'on') ? 'readonly="1"' : ''; ?>/></p>
 	<h3><?php echo(zalomeni_texturize(__('Čísla', 'zalomeni'))); ?></h3>
-	<p><input name="zalomeni_numbers_check" type="checkbox" id="zalomeni_numbers_check" value="0" <?php echo ($zalomeni_options['zalomeni_numbers'] == 'on') ? 'checked="checked" ' : ''; ?> /> 
+	<p><input name="zalomeni_numbers_check" type="checkbox" id="zalomeni_numbers_check" value="on" <?php echo ($zalomeni_options['zalomeni_numbers'] == 'on') ? 'checked="checked" ' : ''; ?> /> 
 	   <label for="zalomeni_numbers_check"><?php echo(zalomeni_texturize(__('Pokud jsou dvě čísla oddělena mezerou, předpokládat, že se jedná o formátování čísla pomocí mezery (např. telefonní číslo 800 123 456) a nahrazovat mezeru pevnou mezerou, aby nedošlo k zalomení řádku uprostřed čísla.', 'zalomeni'))); ?></label></p>
 	<p class="submit">
 		<input type="submit" name="Submit" class="button" value="<?php echo(zalomeni_texturize(__('Save Changes'))); ?>" />
