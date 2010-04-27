@@ -3,7 +3,7 @@ Contributors: honza.skypala
 Donate link: http://www.honza.info
 Tags: grammar, Czech
 Requires at least: 2.0
-Tested up to: 2.9.1
+Tested up to: 2.9.2
 Stable tag: 1.2.2
 
 This plugin helps to keep some grammar rules in Czech language related to word wrapping, e.g. prepositions 'k', 's', 'v' and 'z' cannot be placed at the end of line.
