@@ -3,7 +3,7 @@
 Plugin Name: Zalomení
 Plugin URI: http://www.honza.info/category/wordpress/
 Description: Puts non-breakable space after one-letter Czech prepositions like 'k', 's', 'v' or 'z'.
-Version: 1.2.1
+Version: 1.2.2
 Author: Honza Skypala
 Author URI: http://www.honza.info/
 */
