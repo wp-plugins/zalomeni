@@ -2,9 +2,9 @@
 Contributors: honza.skypala
 Donate link: http://www.honza.info
 Tags: grammar, Czech
-Requires at least: 2.0
+Requires at least: 3.5.1
 Tested up to: 3.5.1
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 
 This plugin helps to keep some grammar rules in Czech language related to word wrapping, e.g. prepositions 'k', 's', 'v' and 'z' cannot be placed at the end of line.
 
@@ -32,8 +32,8 @@ English: This plugin helps to keep some grammar rules in Czech language related 
 
 Czech:
 1.	Nahrajte kompletní adresář pluginu do wp-content/plugins.
-2.	Aktivujte plugin TopList.cz v administraci plug-inů.
-3.	V konfiguraci pluginu můžete nastavit jednotlivé volby.
+2.	Aktivujte plugin Zalomení v administraci plug-inů.
+3.	V Nastavení->Zobrazování můžete nastavit jednotlivé volby.
 
 Ve výchozím stavu po první instalaci plug-inu je zapnuto pouze umísťování pevných mezer za předložky 'k', 's', 'v' a 'z'. Ostatní volby je možné zapnout v nastavení.
 
@@ -59,6 +59,9 @@ Ve výchozím stavu po první instalaci plug-inu je zapnuto pouze umísťování
 * Opravena chyba v konfiguraci.
 = 1.2.3 =
 * Opraveno volání funkce add_options_page tak, aby nepoužívalo již nepodporovaný formát.
+= 1.2.4 =
+* Dvojité volání nahrazovací funkce, plugin nefungoval pro dvě příslušná slova nacházející se za sebou (např. pokud by byly zapnuty pevné mezery za předložkami i za spojkami, pak ve výrazu "a s někým" by došlo k nahrazení mezery za "a", ale již ne za "s")
+* Nastavení pluginu přemístěno na stránku Nastavení->Zobrazování, je zbytečné, aby měl plugin celou vlastní stránku s nastavením
 
 == Licence ==
 
