@@ -3,8 +3,8 @@ Contributors: honza.skypala
 Donate link: http://www.honza.info
 Tags: grammar, Czech
 Requires at least: 3.5.1
-Tested up to: 3.5.1
-Stable tag: 1.2.4
+Tested up to: 3.9.1
+Stable tag: 1.3
 
 This plugin helps to keep some grammar rules in Czech language related to word wrapping, e.g. prepositions 'k', 's', 'v' and 'z' cannot be placed at the end of line.
 
@@ -19,12 +19,6 @@ Czech: Upravujeme-li písemný dokument, radí nám Pravidla českého pravopisu
 
 Tento plugin řeší některé z uvedených příkladů: v textu nahrazuje běžné mezery za pevné tak, aby nedošlo k zalomení řádku v nevhodném místě.
 
-Související odkazy:
-
-* <a href="http://www.honza.info/category/wordpress/" title="Kategorie počítače na mých stránkách">Plugin Homepage</a>
-* <a href="http://www.honza/info/" title="honza.info">Moje webové stránky</a>
-* <a href="http://prirucka.ujc.cas.cz/?id=880" title="Více informací k problematice">Více informací</a> k této problematice na webu Ústavu pro jazyk český, Akademie věd ČR.
-
 English: This plugin helps to keep some grammar rules in Czech language related to word wrapping, e.g. prepositions 'k', 's', 'v' and 'z' cannot be placed at the end of line.
 
 
@@ -34,8 +28,6 @@ Czech:
 1.	Nahrajte kompletní adresář pluginu do wp-content/plugins.
 2.	Aktivujte plugin Zalomení v administraci plug-inů.
 3.	V Nastavení->Zobrazování můžete nastavit jednotlivé volby.
-
-Ve výchozím stavu po první instalaci plug-inu je zapnuto pouze umísťování pevných mezer za předložky 'k', 's', 'v' a 'z'. Ostatní volby je možné zapnout v nastavení.
 
 == Screenshots ==
 
@@ -62,7 +54,29 @@ Ve výchozím stavu po první instalaci plug-inu je zapnuto pouze umísťování
 = 1.2.4 =
 * Dvojité volání nahrazovací funkce, plugin nefungoval pro dvě příslušná slova nacházející se za sebou (např. pokud by byly zapnuty pevné mezery za předložkami i za spojkami, pak ve výrazu "a s někým" by došlo k nahrazení mezery za "a", ale již ne za "s")
 * Nastavení pluginu přemístěno na stránku Nastavení->Zobrazování, je zbytečné, aby měl plugin celou vlastní stránku s nastavením
+= 1.3 =
+* Změna licence
+* Změna ukládání nastavení (interní; původně pole proměnných, nyní jednotlivé proměnné samostatně, snad to vyřeší problémy některých uživatelů s ukládáním nastavení)
+* Nová funkcionalita: zabránění zalomení po řadové číslovce (včetně data, např. 1. ledna)
+* Nová funkcionalita: uživatelsky definované termíny, které nesmějí být zalomeny
+* Screenshoty přesunuty do adresáře assets, aby se zbytečně nestahovaly uživatelům do jejich instalací WordPressu
+* Plug-in předělán na PHP třídu, pro lepší izolaci a přehlednost
+* WordPress již nevolá activation-hook při aktualizaci pluginu na novou verzi; aktualizace testována a volána v rámci admin_init()
 
 == Licence ==
 
-GNU General Public License version 2 applies
+WTFPL License 2.0 applies
+
+           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                   Version 2, December 2004
+
+Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+Everyone is permitted to copy and distribute verbatim or modified
+copies of this license document, and changing it is allowed as long
+as the name is changed.
+
+           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+  TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+ 0. You just DO WHAT THE FUCK YOU WANT TO.

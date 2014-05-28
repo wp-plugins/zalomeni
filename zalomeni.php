@@ -3,211 +3,298 @@
 Plugin Name: Zalomení
 Plugin URI: http://www.honza.info/category/wordpress/
 Description: Puts non-breakable space after one-letter Czech prepositions like 'k', 's', 'v' or 'z'.
-Version: 1.2.4
+Version: 1.3
 Author: Honza Skypala
 Author URI: http://www.honza.info/
 */
 
-define('ZALOMENI_VERSION', '1.2.4');
+include_once(ABSPATH . 'wp-admin/includes/plugin.php');
 
-function zalomeni_activate() {
-	// default settings
-	define('ZKRATKY', 'cca., č., čís., čj., čp., fa, fě, fy, kupř., mj., např., p., pí, popř., př., přib., přibl., sl., str., sv., tj., tzn., tzv., zvl.');
-	$zalomeni_options = array();
-	$zalomeni_options['zalomeni_prepositions']       = 'on';
-	$zalomeni_options['zalomeni_prepositions_list']  = 'k, s, v, z';
-	$zalomeni_options['zalomeni_conjunctions']       = '';
-	$zalomeni_options['zalomeni_conjunctions_list']  = 'a, i, o, u';
-	$zalomeni_options['zalomeni_abbreviations']      = '';
-	$zalomeni_options['zalomeni_abbreviations_list'] = ZKRATKY;
-	$zalomeni_options['zalomeni_numbers']            = 'on';
-	add_option('zalomeni_options', $zalomeni_options);
-	// update_option('zalomeni_options', $zalomeni_options);  // reset settings to default
-	
-	$zalomeni_options = get_option('zalomeni_options');
-	$zalomeni_version = get_option('zalomeni_version');
-
-	if ($zalomeni_version == '1.0') {
-		// adjust changes version 1.0 -> version 1.1
-		$zalomeni_options['zalomeni_abbreviations_list'] = ZKRATKY;  // new list of abbreviations
-		$zalomeni_options['zalomeni_numbers']            = 'on';     // set numbers on if version upgrade
-		unset($zalomeni_options['zalomeni_replacement_array']);      // remove this setting
-	}
-
-	// rebuild the replacement array in every case
-	$zalomeni_options['zalomeni_matches']      = zalomeni_prepare_matches($zalomeni_options);
-	$zalomeni_options['zalomeni_replacements'] = zalomeni_prepare_replacements($zalomeni_options);
-
-	update_option('zalomeni_options', $zalomeni_options);
-
-	// remember version
-	add_option('zalomeni_version', ZALOMENI_VERSION);
-	update_option('zalomeni_version', ZALOMENI_VERSION);
-}
-
-function zalomeni_prepare_matches($zalomeni_options) {
-	$return_array = array();
-	
-	$word_matches = '';
-	foreach (array('prepositions', 'conjunctions', 'abbreviations') as $i) {
-		if ($zalomeni_options['zalomeni_'.$i] == 'on') {
-			$temp_array = explode(',', $zalomeni_options['zalomeni_'.$i.'_list']);
-			foreach ($temp_array as $j) {
-				$j = strtolower(trim($j));
-				$word_matches .= ($word_matches == '' ? '' : '|') . $j;
-			}
-		}
-	}
-	if ($word_matches != '') {
-		$return_array['words'] = '@(^|;| |&nbsp;|\(|\n)('.$word_matches.') @i';
-	}
-	
-	if ($zalomeni_options['zalomeni_numbers'] == 'on') {
-		$return_array['numbers'] = '@(\d) (\d)@i';
-	}
-
-	return $return_array;
-}
-
-function zalomeni_prepare_replacements($zalomeni_options) {
-	$return_array = array();
-	
-	foreach (array('prepositions', 'conjunctions', 'abbreviations') as $i) {
-		if ($zalomeni_options['zalomeni_'.$i] == 'on') {
-			$return_array['words'] = '$1$2&nbsp;';
-			break;
-		}
-	}
-	
-	if ($zalomeni_options['zalomeni_numbers'] == 'on') {
-		$return_array['numbers'] = '$1&nbsp;$2';
-	}
-
-	return $return_array;
-}
-
-function zalomeni_add_options() {
-	add_settings_section('zalomeni_section', zalomeni_texturize(__('Nevhodná slova a zalomení na konci řádku', 'zalomeni')), 'zalomeni_settings_section_callback_function', 'reading');
-	add_settings_field('zalomeni_prepositions_check', __('Předložky', 'zalomeni'), create_function('', 'zalomeni_option_check_callback_function("prepositions", "Vkládat pevnou mezeru za následující předložky.");'), 'reading', 'zalomeni_section');
-	register_setting('reading', 'zalomeni_prepositions_check', create_function('$input', 'zalomeni_option_sanitize("prepositions", $input);'));
-	add_settings_field('zalomeni_prepositions_list', '', create_function('', 'zalomeni_option_list_callback_function("prepositions", "(oddělte jednotlivé předložky čárkou)");'), 'reading', 'zalomeni_section');
-	register_setting('reading', 'zalomeni_prepositions_list', create_function('$input', 'zalomeni_option_sanitize("prepositions_list", $input);'));
-	add_settings_field('zalomeni_conjunctions_check', __('Spojky', 'zalomeni'), create_function('', 'zalomeni_option_check_callback_function("conjunctions", "Vkládat pevnou mezeru za následující spojky.");'), 'reading', 'zalomeni_section');
-	register_setting('reading', 'zalomeni_conjunctions_check', create_function('$input', 'zalomeni_option_sanitize("conjunctions", $input);'));
-	add_settings_field('zalomeni_conjunctions_list', '', create_function('', 'zalomeni_option_list_callback_function("conjunctions", "(oddělte jednotlivé spojky čárkou)");'), 'reading', 'zalomeni_section');
-	register_setting('reading', 'zalomeni_conjunctions_list', create_function('$input', 'zalomeni_option_sanitize("conjunctions_list", $input);'));
-	add_settings_field('zalomeni_abbreviations_check', __('Zkratky', 'zalomeni'), create_function('', 'zalomeni_option_check_callback_function("abbreviations", "Vkládat pevnou mezeru za následující zkratky.");'), 'reading', 'zalomeni_section');
-	register_setting('reading', 'zalomeni_abbreviations_check', create_function('$input', 'zalomeni_option_sanitize("abbreviations", $input);'));
-	add_settings_field('zalomeni_abbreviations_list', '', create_function('', 'zalomeni_option_list_callback_function("abbreviations", "(oddělte jednotlivé zkratky čárkou)");'), 'reading', 'zalomeni_section');
-	register_setting('reading', 'zalomeni_abbreviations_list', create_function('$input', 'zalomeni_option_sanitize("abbreviations_list", $input);'));
-	add_settings_field('zalomeni_numbers_check', __('Čísla', 'zalomeni'), create_function('', 'zalomeni_option_check_callback_function("numbers", "Pokud jsou dvě čísla oddělena mezerou, předpokládat, že se jedná o formátování čísla pomocí mezery (např. telefonní číslo 800 123 456) a nahrazovat mezeru pevnou mezerou, aby nedošlo k zalomení řádku uprostřed čísla.", false);'), 'reading', 'zalomeni_section');
-	register_setting('reading', 'zalomeni_numbers_check', create_function('$input', 'zalomeni_option_sanitize("numbers", $input);'));
-}
-
-function zalomeni_settings_section_callback_function() {
-	echo(
-	  '<div id="zalomeni_options_desc" style="margin:0 0 15px 10px;-webkit-border-radius:3px;border-radius:3px;border-width:1px;border-color:#e6db55;border-style:solid;float:right;background:#FFFBCC;text-align:center;width:200px">'
-	  . '<p style="line-height:1.5em;">Plugin <strong>Zalomení</strong><br />Autor: <a href="http://www.honza.info/" class="external" target="_blank" title="http://www.honza.info/">Honza Skýpala</a></p>'
-	  . '</div>'
-	  . '<p>' . zalomeni_texturize(__('Upravujeme-li písemný dokument, radí nám <strong>Pravidla českého pravopisu</strong> nepsat neslabičné předložky <em>v, s, z, k</em> na konec řádku, ale psát je na stejný řádek se slovem, které nese přízvuk (např. ve spojení <em>k mostu</em>, <em>s bratrem</em>, <em>v Plzni</em>, <em>z nádraží</em>). Typografické normy jsou ještě přísnější: podle některých je nepatřičné ponechat na konci řádku jakékoli jednopísmenné slovo, tedy také předložky a spojky <em>a, i, o, u</em>;. Někteří pisatelé dokonce nechtějí z estetických důvodů ponechávat na konci řádků jakékoli jednoslabičné výrazy (např. <em>ve, ke, ku, že, na, do, od, pod</em>).', 'zalomeni')) . '</p>'
-	  . '<p>' . zalomeni_texturize(__('<a href="http://prirucka.ujc.cas.cz/?id=880" class="external" target="_blank">Více informací</a> na webu Ústavu pro jazyk český, Akademie věd ČR.', 'zalomeni')) . '</p>'
-	  . '<p>' . zalomeni_texturize(__('Tento plugin řeší některé z uvedených příkladů: v textu nahrazuje běžné mezery za pevné tak, aby nedošlo k zalomení řádku v nevhodném místě.', 'zalomeni')) . '</p>'
-	); 
-}
-
-function zalomeni_option_check_callback_function($option, $description, $listReadOnlyCode=true) {
-	$zalomeni_options = get_option('zalomeni_options');
-  echo(
-	  '<input name="zalomeni_' . $option . '_check" type="checkbox" id="zalomeni_' . $option . '_check" value="on" '
-	  . checked('on', $zalomeni_options["zalomeni_$option"], false)
-	  . ($listReadOnlyCode ? ' onchange="document.getElementById(\'zalomeni_' . $option . '_list\').readOnly = this.checked?\'\':\'1\';"' : '')
-	  . ' /> '
-	  . zalomeni_texturize(__($description, 'zalomeni'))
-	 );
-}
-
-function zalomeni_option_list_callback_function($option, $description) {
-	$zalomeni_options = get_option('zalomeni_options');
-	echo(
-	  '<input name="zalomeni_' . $option . '_list" type="text" id="zalomeni_' . $option . '_list" class="regular-text" value="'
-	  . $zalomeni_options["zalomeni_" . $option . "_list"]
-	  . '"'
-	  . (($zalomeni_options["zalomeni_$option"] != 'on') ? ' readonly="1"' : '')
-	  . ' /> '
-	  . zalomeni_texturize(__($description, 'zalomeni'))
-	 );
-}
-
-function zalomeni_option_sanitize($option, $input) {
-	$zalomeni_options = get_option('zalomeni_options');
-	$zalomeni_options["zalomeni_$option"]      = $input;
-	$zalomeni_options['zalomeni_matches']      = zalomeni_prepare_matches($zalomeni_options);
-	$zalomeni_options['zalomeni_replacements'] = zalomeni_prepare_replacements($zalomeni_options);
-	update_option('zalomeni_options', $zalomeni_options);
-}
-
-// Add settings link to plugin list for this plugin
-function zalomeni_filter_plugin_actions($links, $file) {
-	// Static so we don't call plugin_basename on every plugin row.
-	static $this_plugin;
-	if (!$this_plugin) $this_plugin = plugin_basename(__FILE__);
-	
-	if ($file == $this_plugin) {
-		$settings_link = '<a href="options-reading.php#zalomeni_options_desc">' . __('Settings') . '</a>';
-		array_unshift( $links, $settings_link ); // before other links
-	}
-	return $links;
-}
-
-function zalomeni_texturize($text) {
-	global $wp_version;
-	$zalomeni_options = get_option('zalomeni_options');
-	$output = '';
-	$curl = '';
-	$textarr = preg_split('/(<.*>|\[.*\])/Us', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
-	$stop = count($textarr);
-	
-	$no_texturize_tags = apply_filters('no_texturize_tags', array('pre', 'code', 'kbd', 'style', 'script', 'tt'));
-	$no_texturize_shortcodes = apply_filters('no_texturize_shortcodes', array('code'));
-	$no_texturize_tags_stack = array();
-	$no_texturize_shortcodes_stack = array();
-
-	for ($i = 0; $i < $stop; $i++) {
-		$curl = $textarr[$i];
-
-		if (!empty($curl) && '<' != $curl{0} && '[' != $curl{0}
-				&& empty($no_texturize_shortcodes_stack) && empty($no_texturize_tags_stack)) { // If it's not a tag
-			$curl = preg_replace($zalomeni_options['zalomeni_matches'], $zalomeni_options['zalomeni_replacements'], $curl);
-			$curl = preg_replace($zalomeni_options['zalomeni_matches'], $zalomeni_options['zalomeni_replacements'], $curl);
-		} else if (version_compare($wp_version, '2.9', '<')) {
-			wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
-			wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
+class Zalomeni {
+  const version = '1.3';
+  const zkratky = 'cca., č., čís., čj., čp., fa, fě, fy, kupř., mj., např., p., pí, popř., př., přib., přibl., sl., str., sv., tj., tzn., tzv., zvl.';
+  const default_custom_terms = "Formule 1\nWindows \d\niPhone \d\niPhone S\d\niPad \d\nWii U\nPlayStation \d\nXBox 360";
+  
+  public function __construct() {
+    register_activation_hook(__FILE__, array($this, 'activate'));
+    if (is_admin()){
+    	add_action('admin_init', array($this, 'admin_init'));
+    	$this->add_update_option_hooks();
+      add_filter('plugin_action_links', array($this, 'add_settings_to_plugin_actions'), 10, 2);  // link from Plugins list admin page to settings of this plugin
     } else {
-			_wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
-			_wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
-		}
+    	$zalomeni_matches = get_option('zalomeni_matches');
+    	if (!empty($zalomeni_matches)) {
+    		$filters = array('comment_author', 'term_name', 'link_name', 'link_description',
+    			'link_notes', 'bloginfo', 'wp_title', 'widget_title', 'term_description',
+    			'the_title', 'the_content', 'the_excerpt', 'comment_text', 'single_post_title',
+    			'list_cats');
+    		foreach ($filters as $filter) {
+    			add_filter($filter, array($this, 'texturize'));  // content filter
+    		}
+    	}
+    }
+  }
 
-		$output .= $curl;
-	}
+  static function activate() {
+    add_option('zalomeni_version', self::version);
 
-	return $output;
+    add_option('zalomeni_prepositions', 'on');
+    add_option('zalomeni_prepositions_list', 'k, s, v, z');
+    add_option('zalomeni_conjunctions', '');
+    add_option('zalomeni_conjunctions_list', 'a, i, o, u');
+    add_option('zalomeni_abbreviations', '');
+    add_option('zalomeni_abbreviations_list', self::zkratky);
+    add_option('zalomeni_space_between_numbers', 'on');
+    add_option('zalomeni_space_after_ordered_number', 'on');
+    add_option('zalomeni_custom_terms', self::default_custom_terms);
+    
+    self::update_matches_and_replacements();
+  }
+
+  private function update_plugin_version() {
+    $registered_version = get_option('zalomeni_version', '0');
+    if ($registered_version == '0') return;
+    
+    if (version_compare($registered_version, self::version, '<')) {
+      if (version_compare($registered_version, '1.1', '<')) {
+        add_option('zalomeni_abbreviations', '');
+        add_option('zalomeni_abbreviations_list', self::zkratky);
+        add_option('zalomeni_space_between_numbers', 'on');
+        // please notice if version < 1.1, then it is also < 1.3, so the following block is executed as well
+      }
+      
+      if (version_compare($registered_version, '1.3', '<')) {
+      	$old_options = get_option('zalomeni_options');
+        update_option('zalomeni_prepositions',      $old_options['zalomeni_prepositions']);
+        update_option('zalomeni_prepositions_list', $old_options['zalomeni_prepositions_list']);
+        update_option('zalomeni_conjunctions',      $old_options['zalomeni_conjunctions']);
+        update_option('zalomeni_conjunctions_list', $old_options['zalomeni_conjunctions_list']);
+        if (!version_compare($registered_version, '1.1', '<')) {
+          // these options were introduced in version 1.1
+          update_option('zalomeni_abbreviations',         $old_options['zalomeni_abbreviations']);
+          update_option('zalomeni_abbreviations_list',    $old_options['zalomeni_abbreviations_list']);
+          update_option('zalomeni_space_between_numbers', $old_options['zalomeni_numbers']);
+        }
+        delete_option('zalomeni_options');
+
+        add_option('zalomeni_space_after_ordered_number', 'on');
+        add_option('zalomeni_custom_terms', self::default_custom_terms);
+      }
+
+      self::update_matches_and_replacements();
+      update_option('zalomeni_version', self::version);
+    }
+  }
+  
+  protected static $this_plugin;
+  function add_settings_to_plugin_actions($links, $file) {
+    // Add settings link to plugin list for this plugin
+  	if (!self::$this_plugin) self::$this_plugin = plugin_basename(__FILE__);
+   	if ($file == self::$this_plugin) {
+  		$settings_link = '<a href="options-reading.php#zalomeni_options_desc">' . __('Settings') . '</a>';
+  		array_unshift( $links, $settings_link ); // before other links
+  	}
+  	return $links;
+  }
+
+  function admin_init() {
+    $this->update_plugin_version();
+    
+  	register_setting('reading', 'zalomeni_prepositions');
+  	register_setting('reading', 'zalomeni_prepositions_list');
+  	register_setting('reading', 'zalomeni_conjunctions');
+  	register_setting('reading', 'zalomeni_conjunctions_list');
+  	register_setting('reading', 'zalomeni_abbreviations');
+  	register_setting('reading', 'zalomeni_abbreviations_list');
+  	register_setting('reading', 'zalomeni_space_between_numbers');
+  	register_setting('reading', 'zalomeni_space_after_ordered_number');
+  	register_setting('reading', 'zalomeni_custom_terms');
+
+  	add_settings_section('zalomeni_section', $this->texturize(__('Nevhodná slova a zalomení na konci řádku', 'zalomeni')), 'Zalomeni::settings_section_description', 'reading');
+
+  	add_settings_field('zalomeni_prepositions', __('Předložky', 'zalomeni'), 'Zalomeni::settings_field_checkbox', 'reading', 'zalomeni_section', array('option'=>'prepositions', 'description'=>"Vkládat pevnou mezeru za následující předložky.", 'toggle_list_read_only'=>true));
+    add_settings_field('zalomeni_prepositions_list', '', 'Zalomeni::settings_field_textlist', 'reading', 'zalomeni_section', array('option'=>'prepositions', 'description'=>"(oddělte jednotlivé předložky čárkou)")); 
+  	add_settings_field('zalomeni_conjunctions', __('Spojky', 'zalomeni'), 'Zalomeni::settings_field_checkbox', 'reading', 'zalomeni_section', array('option'=>'conjunctions', 'description'=>"Vkládat pevnou mezeru za následující spojky.", 'toggle_list_read_only'=>true));
+  	add_settings_field('zalomeni_conjunctions_list', '', 'Zalomeni::settings_field_textlist', 'reading', 'zalomeni_section', array('option'=>'conjunctions', 'description'=>"(oddělte jednotlivé spojky čárkou)"));
+  	add_settings_field('zalomeni_abbreviations', __('Zkratky', 'zalomeni'), 'Zalomeni::settings_field_checkbox', 'reading', 'zalomeni_section', array('option'=>'abbreviations', 'description'=>"Vkládat pevnou mezeru za následující zkratky.", 'toggle_list_read_only'=>true));
+  	add_settings_field('zalomeni_abbreviations_list', '', 'Zalomeni::settings_field_textlist', 'reading', 'zalomeni_section', array('option'=>'abbreviations', 'description'=>"(oddělte jednotlivé zkratky čárkou)"));
+  	add_settings_field('zalomeni_space_between_numbers', __('Mezery uprostřed čísel', 'zalomeni'), 'Zalomeni::settings_field_checkbox', 'reading', 'zalomeni_section', array('option'=>'space_between_numbers', 'description'=>"Pokud jsou dvě čísla oddělena mezerou, předpokládat, že se jedná o formátování čísla pomocí mezery (např. telefonní číslo 800 123 456) a nahrazovat mezeru pevnou mezerou, aby nedošlo k zalomení řádku uprostřed čísla."));
+  	add_settings_field('zalomeni_space_after_ordered_number', __('Řadové číslovky', 'zalomeni'), 'Zalomeni::settings_field_checkbox', 'reading', 'zalomeni_section', array('option'=>'space_after_ordered_number', 'description'=>"Zabránit zalomení řádku za řadovou číslovkou; díky tomu nedojde k zalomení řádku uprostřed data (např. 1. ledna) a v podobných případech (19. ročník, 3. svazek, 5. kapitola apod.)"));
+  	add_settings_field('zalomeni_custom_terms', __('Vlastní výrazy', 'zalomeni'), 'Zalomeni::settings_field_custom_terms', 'reading', 'zalomeni_section');
+  }
+
+  public function settings_field_checkbox(array $args) {
+    echo(
+  	  '<input type="checkbox" name="zalomeni_' . $args['option'] . '" id="zalomeni_' . $args['option'] . '" value="on" '
+  	  . checked('on', get_option("zalomeni_" . $args['option']), false)
+  	  . ($args['toggle_list_read_only'] ? ' onchange="document.getElementById(\'zalomeni_' . $args['option'] . '_list\').readOnly = this.checked?\'\':\'1\';"' : '')
+  	  . ' /> '
+      . Zalomeni::texturize(__($args['description'], 'zalomeni'))
+    );
+  }
+
+  public function settings_field_textlist(array $args) {
+    echo(
+      '<input type="text" name="zalomeni_' . $args['option'] . '_list" id="zalomeni_' . $args['option'] . '_list" class="regular-text" value="' . get_option('zalomeni_' . $args['option'] . '_list') . '"'
+       . ((get_option("zalomeni_" . $args['option']) != 'on') ? ' readonly="1"' : '')
+      . ' /> '
+      . Zalomeni::texturize(__($args['description'], 'zalomeni'))
+    );
+  }
+  
+  public function settings_field_custom_terms() {
+    echo(
+      Zalomeni::texturize(__('Zde můžete uvést vlastní termíny, v nichž mají být mezery nahrazeny pevnými mezerami tak, aby nedošlo k zalomení uvnitř těchto výrazů. Uveďte vždy každý výraz na samostatný řádek; pokud je výraz složen z více jak dvou slov, tedy je v něm více jak jedna mezera, pak všechny mezery budou nahrazeny za pevné mezery. Lze použít výrazu \\d pro libovolnou číslovku (pro pokročilé administrátory: algoritmus používá <a href="http://www.php.net/manual/en/reference.pcre.pattern.syntax.php" target="_blank">Perl Compatible Regular Expressions</a>, lze využít syntaxe této specifikace).', 'zalomeni'))
+      . '<p><textarea name="zalomeni_custom_terms" id="zalomeni_custom_terms" rows="10" cols="50" class="regular-text">'
+      . get_option('zalomeni_custom_terms')
+      . '</textarea></p>'
+    );
+  }
+
+  private function add_update_option_hooks() {
+    add_action('update_option_zalomeni_prepositions', array($this, 'update_matches_and_replacements'));
+    add_action('update_option_zalomeni_prepositions_list', array($this, 'update_matches_and_replacements'));
+    add_action('update_option_zalomeni_conjunctions', array($this, 'update_matches_and_replacements'));
+    add_action('update_option_zalomeni_conjunctions_list', array($this, 'update_matches_and_replacements'));
+    add_action('update_option_zalomeni_abbreviations', array($this, 'update_matches_and_replacements'));
+    add_action('update_option_zalomeni_abbreviations_list', array($this, 'update_matches_and_replacements'));
+    add_action('update_option_zalomeni_space_between_numbers', array($this, 'update_matches_and_replacements'));
+    add_action('update_option_zalomeni_space_after_ordered_number', array($this, 'update_matches_and_replacements'));
+    add_action('update_option_zalomeni_custom_terms', array($this, 'update_matches_and_replacements'));
+  }
+
+  public function update_matches_and_replacements() {
+    update_option('zalomeni_matches', Zalomeni::prepare_matches());
+    update_option('zalomeni_replacements', Zalomeni::prepare_replacements());
+  }
+
+  private function prepare_matches() {
+  	$return_array = array();
+  	
+  	$word_matches = '';
+  	foreach (array('prepositions', 'conjunctions', 'abbreviations') as $i) {
+  		if (get_option('zalomeni_'.$i) == 'on') {
+  			$temp_array = explode(',', get_option('zalomeni_'.$i.'_list'));
+  			foreach ($temp_array as $j) {
+  				$j = strtolower(trim($j));
+  				$word_matches .= ($word_matches == '' ? '' : '|') . $j;
+  			}
+  		}
+  	}
+
+  	if ($word_matches != '') {
+  		$return_array['words'] = '@(^|;| |&nbsp;|\(|\n)('.$word_matches.') @i';
+  	}
+  	
+  	if (get_option('zalomeni_space_between_numbers') == 'on') {
+  		$return_array['numbers'] = '@(\d) (\d)@i';
+  	}
+  
+  	if (get_option('zalomeni_space_after_ordered_number') == 'on') {
+  		$return_array['orders'] = '@(\d\.) ([a-záčďéěíňóřšťúýž])@';
+  	}
+  
+  	if (get_option('zalomeni_custom_terms') != '') {
+  	  $term_counter = 1;
+      $custom_terms = explode(chr(10), str_replace(chr(13), '', get_option('zalomeni_custom_terms')));
+      foreach ($custom_terms as $i) {
+        if (strpos($i, ' ') !== false) {
+          $term = '';
+          $words_split = explode(' ', $i);
+          foreach ($words_split as $j) {
+            $term .= ($term == '' ? '(' : ' (') . str_replace(array('/', '(', ')'), array('\\/', '\\(', '\\)'), $j) . ')';
+          }
+          $term = '/' . $term . '/i';
+          $return_array['customterm' . $term_counter++] = $term;
+        }
+      }
+  	}
+
+  	return $return_array;
+  }
+  
+  private function prepare_replacements() {
+  	$return_array = array();
+  	
+  	foreach (array('prepositions', 'conjunctions', 'abbreviations') as $i) {
+  		if (get_option('zalomeni_'.$i) == 'on') {
+  			$return_array['words'] = '$1$2&nbsp;';
+  			break;
+  		}
+  	}
+  	
+  	if (get_option('zalomeni_space_between_numbers') == 'on') {
+  		$return_array['numbers'] = '$1&nbsp;$2';
+  	}
+  
+  	if (get_option('zalomeni_space_after_ordered_number') == 'on') {
+  		$return_array['orders'] = '$1&nbsp;$2';
+  	}
+  
+  	if (get_option('zalomeni_custom_terms') != '') {
+  	  $term_counter = 1;
+      $custom_terms = explode(chr(10), str_replace(chr(13), '', get_option('zalomeni_custom_terms')));
+      foreach ($custom_terms as $i) {
+        if (strpos($i, ' ') !== false) {
+          $term = '';
+          $words_split = explode(' ', $i);
+          $word_counter = 1;
+          foreach ($words_split as $j) {
+            $term .= ($term == '' ? '' : '&nbsp;') . '$' . $word_counter++;
+          }
+          $return_array['customterm' . $term_counter++] = $term;
+        }
+      }
+  	}
+
+  	return $return_array;
+  }
+  
+  public function settings_section_description() {
+  	echo(
+  	  '<div id="zalomeni_options_desc" style="margin:0 0 15px 10px;-webkit-border-radius:3px;border-radius:3px;border-width:1px;border-color:#e6db55;border-style:solid;float:right;background:#FFFBCC;text-align:center;width:200px">'
+  	  . '<p style="line-height:1.5em;">Plugin <strong>Zalomení</strong><br />Autor: <a href="http://www.honza.info/" class="external" target="_blank" title="http://www.honza.info/">Honza Skýpala</a></p>'
+  	  . '</div>'
+  	  . '<p>' . Zalomeni::texturize(__('Upravujeme-li písemný dokument, radí nám <strong>Pravidla českého pravopisu</strong> nepsat neslabičné předložky <em>v, s, z, k</em> na konec řádku, ale psát je na stejný řádek se slovem, které nese přízvuk (např. ve spojení <em>k mostu</em>, <em>s bratrem</em>, <em>v Plzni</em>, <em>z nádraží</em>). Typografické normy jsou ještě přísnější: podle některých je nepatřičné ponechat na konci řádku jakékoli jednopísmenné slovo, tedy také předložky a spojky <em>a, i, o, u</em>;. Někteří pisatelé dokonce nechtějí z estetických důvodů ponechávat na konci řádků jakékoli jednoslabičné výrazy (např. <em>ve, ke, ku, že, na, do, od, pod</em>).', 'zalomeni')) . '</p>'
+  	  . '<p>' . Zalomeni::texturize(__('<a href="http://prirucka.ujc.cas.cz/?id=880" class="external" target="_blank">Více informací</a> na webu Ústavu pro jazyk český, Akademie věd ČR.', 'zalomeni')) . '</p>'
+  	  . '<p>' . Zalomeni::texturize(__('Tento plugin řeší některé z uvedených příkladů: v textu nahrazuje běžné mezery za pevné tak, aby nedošlo k zalomení řádku v nevhodném místě.', 'zalomeni')) . '</p>'
+  	); 
+  }
+
+  public function texturize($text) {
+  	$output = '';
+  	$curl = '';
+  	$textarr = preg_split('/(<.*>|\[.*\])/Us', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+  	$stop = count($textarr);
+  	
+  	$no_texturize_tags = apply_filters('no_texturize_tags', array('pre', 'code', 'kbd', 'style', 'script', 'tt'));
+  	$no_texturize_shortcodes = apply_filters('no_texturize_shortcodes', array('code'));
+  	$no_texturize_tags_stack = array();
+  	$no_texturize_shortcodes_stack = array();
+  
+  	for ($i = 0; $i < $stop; $i++) {
+  		$curl = $textarr[$i];
+  
+    	global $wp_version;
+  		if (!empty($curl) && '<' != $curl{0} && '[' != $curl{0}
+  				&& empty($no_texturize_shortcodes_stack) && empty($no_texturize_tags_stack)) { // If it's not a tag
+  			$curl = preg_replace(get_option('zalomeni_matches'), get_option('zalomeni_replacements'), $curl);
+  			$curl = preg_replace(get_option('zalomeni_matches'), get_option('zalomeni_replacements'), $curl);
+  		} else if (version_compare($wp_version, '2.9', '<')) {
+  			wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
+  			wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
+      } else {
+  			_wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
+  			_wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
+  		}
+  
+  		$output .= $curl;
+  	}
+  
+  	return $output;
+  }
+
 }
 
-add_filter('plugin_action_links', 'zalomeni_filter_plugin_actions', 10, 2);  // link from Plugins list admin page to settings of this plugin
-
-register_activation_hook(__FILE__, 'zalomeni_activate');  // activation of plugin
-if ( is_admin() ){ // admin actions
-	add_action('admin_init', 'zalomeni_add_options');        // register options
-} else {
-	$zalomeni_options = get_option('zalomeni_options');
-	if (!empty($zalomeni_options['zalomeni_matches'])) {
-		$filters = array('comment_author', 'term_name', 'link_name', 'link_description',
-			'link_notes', 'bloginfo', 'wp_title', 'widget_title', 'term_description',
-			'the_title', 'the_content', 'the_excerpt', 'comment_text', 'single_post_title',
-			'list_cats');
-		foreach ($filters as $filter) {
-			add_filter($filter, 'zalomeni_texturize');  // content filter
-		}
-	}
-}
+$wpZalomeni = new Zalomeni();
 ?>
