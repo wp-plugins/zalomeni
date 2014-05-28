@@ -24,7 +24,6 @@ English: This plugin helps to keep some grammar rules in Czech language related 
 
 == Installation ==
 
-Czech:
 1.	Nahrajte kompletní adresář pluginu do wp-content/plugins.
 2.	Aktivujte plugin Zalomení v administraci plug-inů.
 3.	V Nastavení->Zobrazování můžete nastavit jednotlivé volby.
