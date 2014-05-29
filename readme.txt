@@ -61,6 +61,9 @@ English: This plugin helps to keep some grammar rules in Czech language related 
 * Screenshoty přesunuty do adresáře assets, aby se zbytečně nestahovaly uživatelům do jejich instalací WordPressu
 * Plug-in předělán na PHP třídu, pro lepší izolaci a přehlednost
 * WordPress již nevolá activation-hook při aktualizaci pluginu na novou verzi; aktualizace testována a volána v rámci admin_init()
+= 1.4 =
+* Zalomení po řadové číslovce nyní podporuje číslovku jako navazující slovo; takto je zajištěno nezalomení např. u data zapsaného ve formátu 1. 1. 2014
+* Drobné optimalizace
 
 == Licence ==
 
@@ -79,3 +82,11 @@ as the name is changed.
   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
  0. You just DO WHAT THE FUCK YOU WANT TO.
+
+== ToDo's ==
+
+1. mezi číslo a jednotku (značku), např. 10 kg, 10,12 m, 10 min., 15 %, ...
+2. mezi den a měsíc u datumu, kde rok už je možné oddělit, - např 15. 8. /2014
+3. v měřítcích map, rozměrů, apod. - např 1:250000 či 1 : 250 000, 5 : 3, ...
+Viz soupis těchto pravidel na http://prirucka.ujc.cas.cz/?id=880
+- jedná se o 4. až 8. odrážku - pravidlo

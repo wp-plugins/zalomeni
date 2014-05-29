@@ -56,13 +56,6 @@ class Zalomeni {
     if ($registered_version == '0') return;
     
     if (version_compare($registered_version, self::version, '<')) {
-      if (version_compare($registered_version, '1.1', '<')) {
-        add_option('zalomeni_abbreviations', '');
-        add_option('zalomeni_abbreviations_list', self::zkratky);
-        add_option('zalomeni_space_between_numbers', 'on');
-        // please notice if version < 1.1, then it is also < 1.3, so the following block is executed as well
-      }
-      
       if (version_compare($registered_version, '1.3', '<')) {
       	$old_options = get_option('zalomeni_options');
         update_option('zalomeni_prepositions',      $old_options['zalomeni_prepositions']);
@@ -76,12 +69,9 @@ class Zalomeni {
           update_option('zalomeni_space_between_numbers', $old_options['zalomeni_numbers']);
         }
         delete_option('zalomeni_options');
-
-        add_option('zalomeni_space_after_ordered_number', 'on');
-        add_option('zalomeni_custom_terms', self::default_custom_terms);
       }
 
-      self::update_matches_and_replacements();
+      self::activate();
       update_option('zalomeni_version', self::version);
     }
   }
@@ -144,7 +134,7 @@ class Zalomeni {
   
   public function settings_field_custom_terms() {
     echo(
-      Zalomeni::texturize(__('Zde můžete uvést vlastní termíny, v nichž mají být mezery nahrazeny pevnými mezerami tak, aby nedošlo k zalomení uvnitř těchto výrazů. Uveďte vždy každý výraz na samostatný řádek; pokud je výraz složen z více jak dvou slov, tedy je v něm více jak jedna mezera, pak všechny mezery budou nahrazeny za pevné mezery. Lze použít výrazu \\d pro libovolnou číslovku (pro pokročilé administrátory: algoritmus používá <a href="http://www.php.net/manual/en/reference.pcre.pattern.syntax.php" target="_blank">Perl Compatible Regular Expressions</a>, lze využít syntaxe této specifikace).', 'zalomeni'))
+      Zalomeni::texturize(__('Zde můžete uvést vlastní termíny, v nichž mají být mezery nahrazeny pevnými mezerami tak, aby nedošlo k zalomení uvnitř těchto výrazů. Uveďte vždy každý výraz na samostatný řádek; pokud je výraz složen z více jak dvou slov, tedy je v něm více jak jedna mezera, pak všechny mezery budou nahrazeny za pevné mezery. Lze použít výrazu \\d pro libovolnou číslici (pro pokročilé administrátory: algoritmus používá <a href="http://www.php.net/manual/en/reference.pcre.pattern.syntax.php" target="_blank">Perl Compatible Regular Expressions</a>, lze využít syntaxe této specifikace).', 'zalomeni'))
       . '<p><textarea name="zalomeni_custom_terms" id="zalomeni_custom_terms" rows="10" cols="50" class="regular-text">'
       . get_option('zalomeni_custom_terms')
       . '</textarea></p>'
@@ -191,7 +181,7 @@ class Zalomeni {
   	}
   
   	if (get_option('zalomeni_space_after_ordered_number') == 'on') {
-  		$return_array['orders'] = '@(\d\.) ([a-záčďéěíňóřšťúýž])@';
+  		$return_array['orders'] = '@(\d\.) ([0-9a-záčďéěíňóřšťúýž])@';
   	}
   
   	if (get_option('zalomeni_custom_terms') != '') {
