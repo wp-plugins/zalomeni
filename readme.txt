@@ -4,7 +4,7 @@ Donate link: http://www.honza.info
 Tags: grammar, Czech
 Requires at least: 3.5.1
 Tested up to: 3.9.1
-Stable tag: 1.3
+Stable tag: 1.4
 
 This plugin helps to keep some grammar rules in Czech language related to word wrapping, e.g. prepositions 'k', 's', 'v' and 'z' cannot be placed at the end of line.
 
@@ -63,13 +63,48 @@ English: This plugin helps to keep some grammar rules in Czech language related 
 * WordPress již nevolá activation-hook při aktualizaci pluginu na novou verzi; aktualizace testována a volána v rámci admin_init()
 = 1.4 =
 * Zalomení po řadové číslovce nyní podporuje číslovku jako navazující slovo; takto je zajištěno nezalomení např. u data zapsaného ve formátu 1. 1. 2014
+* Nová funkcionalita: zabránění zalomení mezi číslovkou a jednotkou nebo měnou (např. 1 m, 5 kg, 50 Kč)
+* Nová funkcionalita: zabránění zalomení v měřítkách a poměrech (např. 1 : 1000)
+* Vlastní filtr <em>zalomeni_filtry</em> -- umožňuje odebrat nebo přidat filtry, na které se Zalomení aplikuje
 * Drobné optimalizace
+
+== Frequently Asked Questions ==
+
+Tento plugin se aplikuje na řadu filtrů WordPressu -- obsah příspěvku, název příspěvku, název celého webu atd. Konkrétně se jedná o tyto filtry:
+
+* comment_author
+* term_name
+* link_name
+* link_description
+* link_notes
+* bloginfo
+* wp_title
+* widget_title
+* term_description
+* the_title
+* the_content
+* the_excerpt
+* comment_text
+* single_post_title
+* list_cats
+
+Některé uživatelské instalace WordPressu s tím mohou mít problém. Například se může jednat o e-shop, který používá název příspěvku jako název produktu a v něm potřebuje, aby Zalomení nebylo aplikováno; jinak chce ovšem nadále Zalomení používat.
+
+Proto přináší plugin Zalomení svůj vlastní filtr <em>zalomeni_filtry</em>. Můžete si pak do své šablony nebo do svého webu přidat funkci, v které ze seznamu filtrů odstraníte ten, u kterého nechcete Zalomení použít. Příklad zrušení aplikace Zalomení na název příspěvku: 
+
+<code>add_filter('zalomeni_filtry', 'remove_title_from_zalomeni');
+function remove_title_from_zalomeni(array $filters) {
+  unset($filters['the_title']);
+  return $filters;
+}</code>
+
+Poznámka: tímto způsobem můžete filtry nejen odebírat, ale také přidávat, pokud to potřebujete.
 
 == Licence ==
 
 WTFPL License 2.0 applies
 
-           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+<code>           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
                    Version 2, December 2004
 
 Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
@@ -81,12 +116,4 @@ as the name is changed.
            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
- 0. You just DO WHAT THE FUCK YOU WANT TO.
-
-== ToDo's ==
-
-1. mezi číslo a jednotku (značku), např. 10 kg, 10,12 m, 10 min., 15 %, ...
-2. mezi den a měsíc u datumu, kde rok už je možné oddělit, - např 15. 8. /2014
-3. v měřítcích map, rozměrů, apod. - např 1:250000 či 1 : 250 000, 5 : 3, ...
-Viz soupis těchto pravidel na http://prirucka.ujc.cas.cz/?id=880
-- jedná se o 4. až 8. odrážku - pravidlo
+ 0. You just DO WHAT THE FUCK YOU WANT TO.</code>
