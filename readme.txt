@@ -28,6 +28,38 @@ English: This plugin helps to keep some grammar rules in Czech language related 
 2.	Aktivujte plugin Zalomení v administraci plug-inů.
 3.	V Nastavení->Zobrazování můžete nastavit jednotlivé volby.
 
+== Frequently Asked Questions ==
+
+Tento plugin se aplikuje na řadu filtrů WordPressu -- obsah příspěvku, název příspěvku, název celého webu atd. Konkrétně se jedná o tyto filtry:
+
+* comment_author
+* term_name
+* link_name
+* link_description
+* link_notes
+* bloginfo
+* wp_title
+* widget_title
+* term_description
+* the_title
+* the_content
+* the_excerpt
+* comment_text
+* single_post_title
+* list_cats
+
+Některé uživatelské instalace WordPressu s tím mohou mít problém. Například se může jednat o e-shop, který používá název příspěvku jako název produktu a v něm potřebuje, aby Zalomení nebylo aplikováno; jinak chce ovšem nadále Zalomení používat.
+
+Proto přináší plugin Zalomení svůj vlastní filtr <em>zalomeni_filtry</em>. Můžete si pak do své šablony nebo do svého webu přidat funkci, v které ze seznamu filtrů odstraníte ten, u kterého nechcete Zalomení použít. Příklad zrušení aplikace Zalomení na název příspěvku: 
+
+<code>add_filter('zalomeni_filtry', 'remove_title_from_zalomeni');
+function remove_title_from_zalomeni(array $filters) {
+  unset($filters['the_title']);
+  return $filters;
+}</code>
+
+Poznámka: tímto způsobem můžete filtry nejen odebírat, ale také přidávat, pokud to potřebujete.
+
 == Screenshots ==
 
 1. Konfigurace pluginu
