@@ -67,24 +67,17 @@ Poznámka: tímto způsobem můžete filtry nejen odebírat, ale také přidáva
 
 == Changelog ==
 
-= 1.0 =
-* Initial release.
-= 1.1 =
-* Nyní umí vložit pevnou mezeru také za předložku (či jiné slovo), které se nachází na následujících pozicích: první slovo za otevírací závorkou, první slovo po nějakém tagu (např tag pro zapnutí italiky či tučného písma), na začátku odstavce.
-* Rozšířen výchozí seznam zkratek, za něž se vkládá mezera
-* Nahrazuje mezery v číslech za pevné mezery (např. v telefonním čísle zapsaném jako 800 123 456 nahradí mezery za pevné mezery, aby nebylo číslo rozděleno zalomením řádku).
-* Interně přepsáno, již nevyužívá stávající filter wptexturize(), ale přidává vlastní filtr.
-= 1.2 =
-* Kompatibilita s WordPress 2.9
-= 1.2.1 =
-* Opravena chyba v HTML kódu konfigurace pluginu.
-= 1.2.2 =
-* Opravena chyba v konfiguraci.
-= 1.2.3 =
-* Opraveno volání funkce add_options_page tak, aby nepoužívalo již nepodporovaný formát.
-= 1.2.4 =
-* Dvojité volání nahrazovací funkce, plugin nefungoval pro dvě příslušná slova nacházející se za sebou (např. pokud by byly zapnuty pevné mezery za předložkami i za spojkami, pak ve výrazu "a s někým" by došlo k nahrazení mezery za "a", ale již ne za "s")
-* Nastavení pluginu přemístěno na stránku Nastavení->Zobrazování, je zbytečné, aby měl plugin celou vlastní stránku s nastavením
+= 1.4.2 =
+* Zlepšena kompatibilita s utf8 (díky Pavel Krejčí)
+= 1.4.1 =
+* Kontrola při aktivaci pluginu na PHP verze 5.3 nebo vyšší
+* Drobné optimalizace
+= 1.4 =
+* Zalomení po řadové číslovce nyní podporuje číslovku jako navazující slovo; takto je zajištěno nezalomení např. u data zapsaného ve formátu 1. 1. 2014
+* Nová funkcionalita: zabránění zalomení mezi číslovkou a jednotkou nebo měnou (např. 1 m, 5 kg, 50 Kč)
+* Nová funkcionalita: zabránění zalomení v měřítkách a poměrech (např. 1 : 1000)
+* Vlastní filtr <em>zalomeni_filtry</em> -- umožňuje odebrat nebo přidat filtry, na které se Zalomení aplikuje
+* Drobné optimalizace
 = 1.3 =
 * Změna licence
 * Změna ukládání nastavení (interní; původně pole proměnných, nyní jednotlivé proměnné samostatně, snad to vyřeší problémy některých uživatelů s ukládáním nastavení)
@@ -93,17 +86,24 @@ Poznámka: tímto způsobem můžete filtry nejen odebírat, ale také přidáva
 * Screenshoty přesunuty do adresáře assets, aby se zbytečně nestahovaly uživatelům do jejich instalací WordPressu
 * Plug-in předělán na PHP třídu, pro lepší izolaci a přehlednost
 * WordPress již nevolá activation-hook při aktualizaci pluginu na novou verzi; aktualizace testována a volána v rámci admin_init()
-= 1.4 =
-* Zalomení po řadové číslovce nyní podporuje číslovku jako navazující slovo; takto je zajištěno nezalomení např. u data zapsaného ve formátu 1. 1. 2014
-* Nová funkcionalita: zabránění zalomení mezi číslovkou a jednotkou nebo měnou (např. 1 m, 5 kg, 50 Kč)
-* Nová funkcionalita: zabránění zalomení v měřítkách a poměrech (např. 1 : 1000)
-* Vlastní filtr <em>zalomeni_filtry</em> -- umožňuje odebrat nebo přidat filtry, na které se Zalomení aplikuje
-* Drobné optimalizace
-= 1.4.1 =
-* Kontrola při aktivaci pluginu na PHP verze 5.3 nebo vyšší
-* Drobné optimalizace
-= 1.4.2 =
-* Zlepšena kompatibilita s utf8 (díky Pavel Krejčí)
+= 1.2.4 =
+* Dvojité volání nahrazovací funkce, plugin nefungoval pro dvě příslušná slova nacházející se za sebou (např. pokud by byly zapnuty pevné mezery za předložkami i za spojkami, pak ve výrazu "a s někým" by došlo k nahrazení mezery za "a", ale již ne za "s")
+* Nastavení pluginu přemístěno na stránku Nastavení->Zobrazování, je zbytečné, aby měl plugin celou vlastní stránku s nastavením
+= 1.2.3 =
+* Opraveno volání funkce add_options_page tak, aby nepoužívalo již nepodporovaný formát.
+= 1.2.2 =
+* Opravena chyba v konfiguraci.
+= 1.2.1 =
+* Opravena chyba v HTML kódu konfigurace pluginu.
+= 1.2 =
+* Kompatibilita s WordPress 2.9
+= 1.1 =
+* Nyní umí vložit pevnou mezeru také za předložku (či jiné slovo), které se nachází na následujících pozicích: první slovo za otevírací závorkou, první slovo po nějakém tagu (např tag pro zapnutí italiky či tučného písma), na začátku odstavce.
+* Rozšířen výchozí seznam zkratek, za něž se vkládá mezera
+* Nahrazuje mezery v číslech za pevné mezery (např. v telefonním čísle zapsaném jako 800 123 456 nahradí mezery za pevné mezery, aby nebylo číslo rozděleno zalomením řádku).
+* Interně přepsáno, již nevyužívá stávající filter wptexturize(), ale přidává vlastní filtr.
+= 1.0 =
+* Initial release.
 
 == Frequently Asked Questions ==
 
