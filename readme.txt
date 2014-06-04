@@ -4,7 +4,7 @@ Donate link: http://www.honza.info
 Tags: grammar, Czech
 Requires at least: 3.5.1
 Tested up to: 3.9.1
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 
 This plugin helps to keep some grammar rules in Czech language related to word wrapping, e.g. prepositions 'k', 's', 'v' and 'z' cannot be placed at the end of line.
 
@@ -102,6 +102,8 @@ Poznámka: tímto způsobem můžete filtry nejen odebírat, ale také přidáva
 = 1.4.1 =
 * Kontrola při aktivaci pluginu na PHP verze 5.3 nebo vyšší
 * Drobné optimalizace
+= 1.4.2 =
+* Zlepšena kompatibilita s utf8 (díky Pavel Krejčí)
 
 == Frequently Asked Questions ==
 
