@@ -52,7 +52,7 @@ class Zalomeni {
   static function activate() {
     $required_php_version = '5.3';
     if (version_compare(phpversion(), $required_php_version, '<'))
-      die("Plugin Zalomení vyžaduje PHP verze $required_php_version nebo vyšší. Na tomto webu je nainstalováno PHP verze " . phpversion());
+      die(str_replace(array("%1", "%2"), array($required_php_version, phpversion()), __("Plugin Zalomení vyžaduje PHP verze %1 nebo vyšší. Na tomto webu je nainstalováno PHP verze %2", "zalomeni")));
     
     self::add_options();
   }
