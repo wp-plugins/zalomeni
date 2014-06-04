@@ -25,23 +25,8 @@ class Zalomeni {
   public function add_filters() {
     $zalomeni_matches = get_option('zalomeni_matches');
     if (!empty($zalomeni_matches)) {
-      $filters = array(
-        'comment_author'    => 'comment_author',
-        'term_name'         => 'term_name',
-        'link_name'         => 'link_name',
-        'link_description'  => 'link_description',
-        'link_notes'        => 'link_notes',
-        'bloginfo'          => 'bloginfo',
-        'wp_title'          => 'wp_title',
-        'widget_title'      => 'widget_title',
-        'term_description'  => 'term_description',
-        'the_title'         => 'the_title',
-        'the_content'       => 'the_content',
-        'the_excerpt'       => 'the_excerpt',
-        'comment_text'      => 'comment_text',
-        'single_post_title' => 'single_post_title',
-        'list_cats'         => 'list_cats'
-      );
+      $filters = array('comment_author', 'term_name', 'link_name', 'link_description', 'link_notes', 'bloginfo', 'wp_title', 'widget_title', 'term_description', 'the_title', 'the_content', 'the_excerpt', 'comment_text', 'single_post_title', 'list_cats');
+      $filters = array_combine($filters, $filters);
       $filters = apply_filters('zalomeni_filtry', $filters);
       foreach ($filters as $filter) {
         add_filter($filter, array($this, 'texturize'));  // content filter
