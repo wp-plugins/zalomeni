@@ -3,7 +3,7 @@
 Plugin Name: Zalomení
 Plugin URI: http://www.honza.info/category/wordpress/
 Description: Puts non-breakable space after one-letter Czech prepositions like 'k', 's', 'v' or 'z'.
-Version: 1.4
+Version: 1.4.1
 Author: Honza Skypala
 Author URI: http://www.honza.info/
 */
@@ -11,7 +11,7 @@ Author URI: http://www.honza.info/
 include_once(ABSPATH . 'wp-admin/includes/plugin.php');
 
 class Zalomeni {
-  const version = '1.4';
+  const version = '1.4.1';
 
   public function __construct() {
     register_activation_hook(__FILE__, array($this, 'activate'));
@@ -50,6 +50,14 @@ class Zalomeni {
   }
 
   static function activate() {
+    $required_php_version = '5.3';
+    if (version_compare(phpversion(), $required_php_version, '<'))
+      die("Plugin Zalomení vyžaduje PHP verze $required_php_version nebo vyšší. Na tomto webu je nainstalováno PHP verze " . phpversion());
+    
+    self::add_options();
+  }
+  
+  static function add_options() {
     add_option('zalomeni_version', self::version);
 
     add_option('zalomeni_prepositions', 'on');
@@ -88,7 +96,7 @@ class Zalomeni {
         delete_option('zalomeni_options');
       }
 
-      self::activate();
+      self::add_options();
       update_option('zalomeni_version', self::version);
     }
   }
@@ -142,7 +150,7 @@ class Zalomeni {
     echo(
       '<input type="checkbox" name="zalomeni_' . $args['option'] . '" id="zalomeni_' . $args['option'] . '" value="on" '
       . checked('on', get_option("zalomeni_" . $args['option']), false)
-      . ($args['toggle_list_read_only'] ? ' onchange="document.getElementById(\'zalomeni_' . $args['option'] . '_list\').readOnly = this.checked?\'\':\'1\';"' : '')
+      . (array_key_exists('toggle_list_read_only', $args) ? ' onchange="document.getElementById(\'zalomeni_' . $args['option'] . '_list\').readOnly = this.checked?\'\':\'1\';"' : '')
       . ' /> '
       . Zalomeni::texturize(__($args['description'], 'zalomeni'))
     );

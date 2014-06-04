@@ -4,7 +4,7 @@ Donate link: http://www.honza.info
 Tags: grammar, Czech
 Requires at least: 3.5.1
 Tested up to: 3.9.1
-Stable tag: 1.4
+Stable tag: 1.4.1
 
 This plugin helps to keep some grammar rules in Czech language related to word wrapping, e.g. prepositions 'k', 's', 'v' and 'z' cannot be placed at the end of line.
 
@@ -98,6 +98,9 @@ Poznámka: tímto způsobem můžete filtry nejen odebírat, ale také přidáva
 * Nová funkcionalita: zabránění zalomení mezi číslovkou a jednotkou nebo měnou (např. 1 m, 5 kg, 50 Kč)
 * Nová funkcionalita: zabránění zalomení v měřítkách a poměrech (např. 1 : 1000)
 * Vlastní filtr <em>zalomeni_filtry</em> -- umožňuje odebrat nebo přidat filtry, na které se Zalomení aplikuje
+* Drobné optimalizace
+= 1.4.1 =
+* Kontrola při aktivaci pluginu na PHP verze 5.3 nebo vyšší
 * Drobné optimalizace
 
 == Frequently Asked Questions ==
