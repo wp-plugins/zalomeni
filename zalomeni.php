@@ -3,7 +3,7 @@
 Plugin Name: Zalomení
 Plugin URI: http://wordpress.org/plugins/zalomeni/
 Description: Puts non-breakable space after one-letter Czech prepositions like 'k', 's', 'v' or 'z'.
-Version: 1.4.2
+Version: 1.4.3
 Author: Honza Skypala
 Author URI: http://www.honza.info/
 */
@@ -11,7 +11,7 @@ Author URI: http://www.honza.info/
 include_once(ABSPATH . 'wp-admin/includes/plugin.php');
 
 class Zalomeni {
-  const version = '1.4.2';
+  const version = '1.4.3';
 
   public function __construct() {
     register_activation_hook(__FILE__, array($this, 'activate'));
@@ -42,21 +42,34 @@ class Zalomeni {
     self::add_options();
   }
   
+  const default_prepositions                 = 'on';
+  const default_prepositions_list            = 'k, s, v, z';
+  const default_conjunctions                 = '';
+  const default_conjunctions_list            = 'a, i, o, u';
+  const default_abbreviations                = '';
+  const default_abbreviations_list           = 'cca., č., čís., čj., čp., fa, fě, fy, kupř., mj., např., p., pí, popř., př., přib., přibl., sl., str., sv., tj., tzn., tzv., zvl.';
+  const default_between_number_and_unit      = 'on';
+  const default_between_number_and_unit_list = 'm, m², l, kg, h, °C, Kč, lidí, dní, %';
+  const default_spaces_in_scales             = 'on';
+  const default_space_between_numbers        = 'on';
+  const default_space_after_ordered_number   = 'on';
+  const default_custom_terms                 = "Formule 1\nWindows \d\niPhone \d\niPhone S\d\niPad \d\nWii U\nPlayStation \d\nXBox 360";
+  
   static function add_options() {
     add_option('zalomeni_version', self::version);
 
-    add_option('zalomeni_prepositions', 'on');
-    add_option('zalomeni_prepositions_list', 'k, s, v, z');
-    add_option('zalomeni_conjunctions', '');
-    add_option('zalomeni_conjunctions_list', 'a, i, o, u');
-    add_option('zalomeni_abbreviations', '');
-    add_option('zalomeni_abbreviations_list', "cca., č., čís., čj., čp., fa, fě, fy, kupř., mj., např., p., pí, popř., př., přib., přibl., sl., str., sv., tj., tzn., tzv., zvl.");
-    add_option('zalomeni_between_number_and_unit', 'on');
-    add_option('zalomeni_between_number_and_unit_list', 'm, m², l, kg, h, °C, Kč, lidí, dní, %');
-    add_option('zalomeni_spaces_in_scales', 'on');
-    add_option('zalomeni_space_between_numbers', 'on');
-    add_option('zalomeni_space_after_ordered_number', 'on');
-    add_option('zalomeni_custom_terms', "Formule 1\nWindows \d\niPhone \d\niPhone S\d\niPad \d\nWii U\nPlayStation \d\nXBox 360");
+    add_option('zalomeni_prepositions',                 Zalomeni::default_zalomeni_prepositions);
+    add_option('zalomeni_prepositions_list',            Zalomeni::default_zalomeni_prepositions_list);
+    add_option('zalomeni_conjunctions',                 Zalomeni::default_zalomeni_conjunctions);
+    add_option('zalomeni_conjunctions_list',            Zalomeni::default_zalomeni_conjunctions_list);
+    add_option('zalomeni_abbreviations',                Zalomeni::default_zalomeni_abbreviations);
+    add_option('zalomeni_abbreviations_list',           Zalomeni::default_zalomeni_abbreviations_list);
+    add_option('zalomeni_between_number_and_unit',      Zalomeni::default_between_number_and_unit);
+    add_option('zalomeni_between_number_and_unit_list', Zalomeni::default_between_number_and_unit_list);
+    add_option('zalomeni_spaces_in_scales',             Zalomeni::default_spaces_in_scales);
+    add_option('zalomeni_space_between_numbers',        Zalomeni::default_space_between_numbers);
+    add_option('zalomeni_space_after_ordered_number',   Zalomeni::default_space_after_ordered_number);
+    add_option('zalomeni_custom_terms',                 Zalomeni::default_custom_terms);
 
     self::update_matches_and_replacements();
   }
@@ -99,7 +112,6 @@ class Zalomeni {
 
   function admin_init() {
     $this->update_plugin_version();
-    $this->add_update_option_hooks();
     add_filter('plugin_action_links', array($this, 'add_settings_to_plugin_actions'), 10, 2);  // link from Plugins list admin page to settings of this plugin
 
     register_setting('reading', 'zalomeni_prepositions');
@@ -129,12 +141,18 @@ class Zalomeni {
     add_settings_field('zalomeni_space_after_ordered_number', __('Řadové číslovky', 'zalomeni'), 'Zalomeni::settings_field_checkbox', 'reading', 'zalomeni_section', array('option'=>'space_after_ordered_number', 'description'=>"Zabránit zalomení řádku za řadovou číslovkou; díky tomu nedojde k zalomení řádku uprostřed data (např. <em>1. ledna</em>) a v podobných případech (<em>19. ročník</em>, <em>3. svazek</em>, <em>5. kapitola</em> apod.)"));
     add_settings_field('zalomeni_spaces_in_scales', __('Měřítka a poměry', 'zalomeni'), 'Zalomeni::settings_field_checkbox', 'reading', 'zalomeni_section', array('option'=>'spaces_in_scales', 'description'=>"Pevné mezery v měřítkách a poměrech (např. <em>1 : 50 000</em>)"));
     add_settings_field('zalomeni_custom_terms', __('Vlastní výrazy', 'zalomeni'), 'Zalomeni::settings_field_custom_terms', 'reading', 'zalomeni_section');
+    
+    if (get_option('zalomeni_matches') == '') {
+      Zalomeni::update_matches_and_replacements();
+    }
+    
+    $this->add_update_option_hooks();
   }
 
   public function settings_field_checkbox(array $args) {
     echo(
       '<input type="checkbox" name="zalomeni_' . $args['option'] . '" id="zalomeni_' . $args['option'] . '" value="on" '
-      . checked('on', get_option("zalomeni_" . $args['option']), false)
+      . checked('on', get_option("zalomeni_" . $args['option'], constant('Zalomeni::default_' . $args['option'])), false)
       . (array_key_exists('toggle_list_read_only', $args) ? ' onchange="document.getElementById(\'zalomeni_' . $args['option'] . '_list\').readOnly = this.checked?\'\':\'1\';"' : '')
       . ' /> '
       . Zalomeni::texturize(__($args['description'], 'zalomeni'))
@@ -143,8 +161,8 @@ class Zalomeni {
 
   public function settings_field_textlist(array $args) {
     echo(
-      '<input type="text" name="zalomeni_' . $args['option'] . '_list" id="zalomeni_' . $args['option'] . '_list" class="regular-text" value="' . get_option('zalomeni_' . $args['option'] . '_list') . '"'
-       . ((get_option("zalomeni_" . $args['option']) != 'on') ? ' readonly="1"' : '')
+      '<input type="text" name="zalomeni_' . $args['option'] . '_list" id="zalomeni_' . $args['option'] . '_list" class="regular-text" value="' . get_option('zalomeni_' . $args['option'] . '_list', constant('Zalomeni::default_' . $args['option'] . '_list')) . '"'
+       . ((get_option("zalomeni_" . $args['option'], constant('Zalomeni::default_' . $args['option'])) != 'on') ? ' readonly="1"' : '')
       . ' /> '
       . Zalomeni::texturize(__($args['description'], 'zalomeni'))
     );
@@ -154,24 +172,26 @@ class Zalomeni {
     echo(
       Zalomeni::texturize(__('Zde můžete uvést vlastní termíny, v nichž mají být mezery nahrazeny pevnými mezerami tak, aby nedošlo k zalomení uvnitř těchto výrazů. Uveďte vždy každý výraz na samostatný řádek; pokud je výraz složen z více jak dvou slov, tedy je v něm více jak jedna mezera, pak všechny mezery budou nahrazeny za pevné mezery. Lze použít výrazu \\d pro libovolnou číslici (pro pokročilé administrátory: algoritmus používá <a href="http://www.php.net/manual/en/reference.pcre.pattern.syntax.php" target="_blank">Perl Compatible Regular Expressions</a>, lze využít syntaxe této specifikace).', 'zalomeni'))
       . '<p><textarea name="zalomeni_custom_terms" id="zalomeni_custom_terms" rows="10" cols="50" class="regular-text">'
-      . get_option('zalomeni_custom_terms')
+      . get_option('zalomeni_custom_terms', Zalomeni::default_custom_terms)
       . '</textarea></p>'
     );
   }
 
   private function add_update_option_hooks() {
-    add_action('update_option_zalomeni_prepositions', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_prepositions_list', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_conjunctions', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_conjunctions_list', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_abbreviations', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_abbreviations_list', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_between_number_and_unit', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_between_number_and_unit_list', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_space_between_numbers', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_space_after_ordered_number', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_spaces_in_scales', array($this, 'update_matches_and_replacements'));
-    add_action('update_option_zalomeni_custom_terms', array($this, 'update_matches_and_replacements'));
+    foreach (array('update_option_zalomeni_prepositions',
+                   'update_option_zalomeni_prepositions_list',
+                   'update_option_zalomeni_conjunctions',
+                   'update_option_zalomeni_conjunctions_list',
+                   'update_option_zalomeni_abbreviations',
+                   'update_option_zalomeni_abbreviations_list',
+                   'update_option_zalomeni_between_number_and_unit',
+                   'update_option_zalomeni_between_number_and_unit_list',
+                   'update_option_zalomeni_space_between_numbers',
+                   'update_option_zalomeni_space_after_ordered_number',
+                   'update_option_zalomeni_spaces_in_scales',
+                   'update_option_zalomeni_custom_terms') as $i) {
+      add_action($i, array($this, 'update_matches_and_replacements'));
+    }
   }
 
   public function update_matches_and_replacements() {
@@ -184,8 +204,8 @@ class Zalomeni {
 
     $word_matches = '';
     foreach (array('prepositions', 'conjunctions', 'abbreviations') as $i) {
-      if (get_option('zalomeni_'.$i) == 'on') {
-        $temp_array = explode(',', get_option('zalomeni_'.$i.'_list'));
+      if (get_option('zalomeni_'.$i, constant('Zalomeni::default_'.$i)) == 'on') {
+        $temp_array = explode(',', get_option('zalomeni_'.$i.'_list', constant('Zalomeni::default_'.$i.'_list')));
         foreach ($temp_array as $j) {
           $j = mb_strtolower(trim($j));
           $word_matches .= ($word_matches == '' ? '' : '|') . $j;
@@ -197,8 +217,8 @@ class Zalomeni {
     }
 
     $word_matches = '';
-    if (get_option('zalomeni_between_number_and_unit') == 'on') {
-      $temp_array = explode(',', get_option('zalomeni_between_number_and_unit_list'));
+    if (get_option('zalomeni_between_number_and_unit', Zalomeni::default_between_number_and_unit) == 'on') {
+      $temp_array = explode(',', get_option('zalomeni_between_number_and_unit_list', Zalomeni::default_between_number_and_unit_list));
       foreach ($temp_array as $j) {
         $j = mb_strtolower(trim($j));
         $word_matches .= ($word_matches == '' ? '' : '|') . $j;
@@ -208,21 +228,21 @@ class Zalomeni {
       $return_array['units'] = '@(\d) ('.$word_matches.')(^|[;\.!:]| |&nbsp;|\?|\n)@i';
     }
 
-    if (get_option('zalomeni_space_between_numbers') == 'on') {
+    if (get_option('zalomeni_space_between_numbers', Zalomeni::default_space_between_numbers) == 'on') {
       $return_array['numbers'] = '@(\d) (\d)@i';
     }
 
-    if (get_option('zalomeni_spaces_in_scales') == 'on') {
+    if (get_option('zalomeni_spaces_in_scales', Zalomeni::default_spaces_in_scales) == 'on') {
       $return_array['scales'] = '@(\d) : (\d)@i';
     }
 
-    if (get_option('zalomeni_space_after_ordered_number') == 'on') {
+    if (get_option('zalomeni_space_after_ordered_number', Zalomeni::default_space_after_ordered_number) == 'on') {
       $return_array['orders'] = '@(\d\.) ([0-9a-záčďéěíňóřšťúýž])@';
     }
 
-    if (get_option('zalomeni_custom_terms') != '') {
+    if (get_option('zalomeni_custom_terms', Zalomeni::default_custom_terms) != '') {
       $term_counter = 1;
-      $custom_terms = explode(chr(10), str_replace(chr(13), '', get_option('zalomeni_custom_terms')));
+      $custom_terms = explode(chr(10), str_replace(chr(13), '', get_option('zalomeni_custom_terms', Zalomeni::default_custom_terms)));
       foreach ($custom_terms as $i) {
         if (strpos($i, ' ') !== false) {
           $term = '';
@@ -243,31 +263,31 @@ class Zalomeni {
     $return_array = array();
 
     foreach (array('prepositions', 'conjunctions', 'abbreviations') as $i) {
-      if (get_option('zalomeni_'.$i) == 'on') {
+      if (get_option('zalomeni_'.$i, constant('Zalomeni::default_'.$i)) == 'on') {
         $return_array['words'] = '$1$2&nbsp;';
         break;
       }
     }
 
-    if (get_option('zalomeni_between_number_and_unit') == 'on') {
+    if (get_option('zalomeni_between_number_and_unit', Zalomeni::default_between_number_and_unit) == 'on') {
       $return_array['units'] = '$1&nbsp;$2$3';
     }
 
-    if (get_option('zalomeni_space_between_numbers') == 'on') {
+    if (get_option('zalomeni_space_between_numbers', Zalomeni::default_space_between_numbers) == 'on') {
       $return_array['numbers'] = '$1&nbsp;$2';
     }
 
-    if (get_option('zalomeni_spaces_in_scales') == 'on') {
+    if (get_option('zalomeni_spaces_in_scales', Zalomeni::default_spaces_in_scales) == 'on') {
       $return_array['scales'] = '$1&nbsp;:&nbsp;$2';
     }
 
-    if (get_option('zalomeni_space_after_ordered_number') == 'on') {
+    if (get_option('zalomeni_space_after_ordered_number', Zalomeni::default_space_after_ordered_number) == 'on') {
       $return_array['orders'] = '$1&nbsp;$2';
     }
 
-    if (get_option('zalomeni_custom_terms') != '') {
+    if (get_option('zalomeni_custom_terms', Zalomeni::default_custom_terms) != '') {
       $term_counter = 1;
-      $custom_terms = explode(chr(10), str_replace(chr(13), '', get_option('zalomeni_custom_terms')));
+      $custom_terms = explode(chr(10), str_replace(chr(13), '', get_option('zalomeni_custom_terms', Zalomeni::default_custom_terms)));
       foreach ($custom_terms as $i) {
         if (strpos($i, ' ') !== false) {
           $term = '';
@@ -296,6 +316,7 @@ class Zalomeni {
   }
 
   public function texturize($text) {
+    if (get_option('zalomeni_matches') == '') return $text; // no settings? then fall-back to just return the content
     $output = '';
     $curl = '';
     $textarr = preg_split('/(<.*>|\[.*\])/Us', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
