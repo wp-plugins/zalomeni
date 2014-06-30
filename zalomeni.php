@@ -3,7 +3,7 @@
 Plugin Name: Zalomení
 Plugin URI: http://wordpress.org/plugins/zalomeni/
 Description: Puts non-breakable space after one-letter Czech prepositions like 'k', 's', 'v' or 'z'.
-Version: 1.4.3
+Version: 1.4.4
 Author: Honza Skypala
 Author URI: http://www.honza.info/
 */
@@ -58,12 +58,12 @@ class Zalomeni {
   static function add_options() {
     add_option('zalomeni_version', self::version);
 
-    add_option('zalomeni_prepositions',                 Zalomeni::default_zalomeni_prepositions);
-    add_option('zalomeni_prepositions_list',            Zalomeni::default_zalomeni_prepositions_list);
-    add_option('zalomeni_conjunctions',                 Zalomeni::default_zalomeni_conjunctions);
-    add_option('zalomeni_conjunctions_list',            Zalomeni::default_zalomeni_conjunctions_list);
-    add_option('zalomeni_abbreviations',                Zalomeni::default_zalomeni_abbreviations);
-    add_option('zalomeni_abbreviations_list',           Zalomeni::default_zalomeni_abbreviations_list);
+    add_option('zalomeni_prepositions',                 Zalomeni::default_prepositions);
+    add_option('zalomeni_prepositions_list',            Zalomeni::default_prepositions_list);
+    add_option('zalomeni_conjunctions',                 Zalomeni::default_conjunctions);
+    add_option('zalomeni_conjunctions_list',            Zalomeni::default_conjunctions_list);
+    add_option('zalomeni_abbreviations',                Zalomeni::default_abbreviations);
+    add_option('zalomeni_abbreviations_list',           Zalomeni::default_abbreviations_list);
     add_option('zalomeni_between_number_and_unit',      Zalomeni::default_between_number_and_unit);
     add_option('zalomeni_between_number_and_unit_list', Zalomeni::default_between_number_and_unit_list);
     add_option('zalomeni_spaces_in_scales',             Zalomeni::default_spaces_in_scales);
