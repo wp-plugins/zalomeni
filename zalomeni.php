@@ -3,7 +3,7 @@
 Plugin Name: Zalomení
 Plugin URI: http://wordpress.org/plugins/zalomeni/
 Description: Puts non-breakable space after one-letter Czech prepositions like 'k', 's', 'v' or 'z'.
-Version: 1.4.5
+Version: 1.4.6
 Author: Honza Skypala
 Author URI: http://www.honza.info/
 */
@@ -11,7 +11,7 @@ Author URI: http://www.honza.info/
 include_once(ABSPATH . 'wp-admin/includes/plugin.php');
 
 class Zalomeni {
-  const version = '1.4.5';
+  const version = '1.4.6';
 
   public function __construct() {
     register_activation_hook(__FILE__, array($this, 'activate'));
@@ -330,17 +330,19 @@ class Zalomeni {
     for ($i = 0; $i < $stop; $i++) {
       $curl = $textarr[$i];
 
-      global $wp_version;
-      if (!empty($curl) && '<' != $curl{0} && '[' != $curl{0}
-          && empty($no_texturize_shortcodes_stack) && empty($no_texturize_tags_stack)) { // If it's not a tag
-        $curl = preg_replace(get_option('zalomeni_matches'), get_option('zalomeni_replacements'), $curl);
-        $curl = preg_replace(get_option('zalomeni_matches'), get_option('zalomeni_replacements'), $curl);
-      } else if (version_compare($wp_version, '2.9', '<')) {
-        wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
-        wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
-      } else {
-        _wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
-        _wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
+      if (!empty($curl)) {
+        global $wp_version;
+        if ('<' != $curl{0} && '[' != $curl{0}
+            && empty($no_texturize_shortcodes_stack) && empty($no_texturize_tags_stack)) { // If it's not a tag
+          $curl = preg_replace(get_option('zalomeni_matches'), get_option('zalomeni_replacements'), $curl);
+          $curl = preg_replace(get_option('zalomeni_matches'), get_option('zalomeni_replacements'), $curl);
+        } else if (version_compare($wp_version, '2.9', '<')) {
+          wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
+          wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
+        } else {
+          _wptexturize_pushpop_element($curl, $no_texturize_tags_stack, $no_texturize_tags, '<', '>');
+          _wptexturize_pushpop_element($curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes, '[', ']');
+        }
       }
 
       $output .= $curl;
